@@ -3,38 +3,39 @@ import { withStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import PhotoItemPreview from "./PhotoItemPreview";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { Subscribe } from "unstated";
-import SearchContainer from "./SearchContainer";
-import { flow } from "lodash";
-import { withRouter } from "react-router";
+import { fetchPhotos } from "../services/photoServices";
+import withFetch from "./hocs/WithFetch";
+
 
 const styles = theme => ({ progress: {} });
 
 class PostGrid extends React.Component {
   state = {
     photos: [],
-    isLoading: false
+    //isLoading: false
   };
 
-  async componentDidMount() {
-    this.setState({ isLoading: true });
+ /* async componentDidMount() {
+    //this.setState({ isLoading: true });
     const photos = await this.getPhotos();
     this.setState({
       photos,
-      isLoading: false
+      //isLoading: false
     });
   }
 
-  async getPhotos() {
-    const response = await fetch("https://jsonplaceholder.typicode.com/photos");
-    const data = await response.json();
+
+  getPhotos = async () => {
+    const data = await fetch()
     return data;
   }
+  */
 
   render() {
-    const { classes } = this.props;
-    const { isLoading } = this.state;
+    const { classes, filterBy, isLoading, data } = this.props;
+    //const { isLoading } = this.state;
     if (isLoading) {
+      
       return (
         <div
           style={{
@@ -53,29 +54,23 @@ class PostGrid extends React.Component {
       );
     }
     return (
-      <Subscribe to={[SearchContainer]}>
-        {searchContainer => (
-          <Grid container spacing={24} justify="center">
-            {this.state
-              ? this.state.photos
-                  .slice(0, 20)
-                  .filter(result => {
-                    return result.title.includes(searchContainer.state.search);
-                  })
-                  .map(photo => (
-                    <Grid item xs={3} key={photo.id}>
-                      <PhotoItemPreview {...photo} />
-                    </Grid>
-                  ))
-              : null}
-          </Grid>
-        )}
-      </Subscribe>
+      <Grid container spacing={24} justify="center">
+      {data.length > 0
+        ? data
+            .slice(0, 20)
+            .filter(result => {
+              return result.title.includes(filterBy);
+            })
+            .map(photo => (
+              <Grid item xs={3} key={photo.id}>
+                <PhotoItemPreview {...photo} />
+              </Grid>
+            ))
+        : null}
+    </Grid>
     );
   }
 }
 
-export default flow(
-  withRouter,
-  withStyles(styles)
-)(PostGrid);
+export default withFetch(withStyles(styles)(PostGrid))('https://jsonplaceholder.typicode.com/photos')
+

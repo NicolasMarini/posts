@@ -35,14 +35,15 @@ class TabApp extends React.Component {
 
   render() {
     const { classes, selectedTab } = this.props;
+    console.log("PROPS:: ", this.props);
     return (
       <Tabs variant="fullWidth" value={selectedTab} onChange={this.onTabChange}>
         <Tab label="Photos" className={classes.bold} component={Link} to="/" />
         <Tab
-          label="Users"
+          label="Posts"
           className={classes.bold}
           component={Link}
-          to="/users"
+          to="/posts"
         />
       </Tabs>
     );

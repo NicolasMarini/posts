@@ -4,39 +4,18 @@ import CustomAppBar from "./components/AppBar";
 import TabApp from "./components/Tab";
 import Grid from "@material-ui/core/Grid";
 import PhotoGrid from "./components/PhotoGrid";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { Subscribe } from "unstated";
-import SearchContainer from "./components/SearchContainer";
-import UserGrid from "./components/UserGrid";
-import UserDetail from "./components/UserDetail";
-import NotFound from "./components/NotFound";
-
-const tabs = [
-  {
-    index: 0,
-    path: "/"
-  },
-  {
-    index: 1,
-    path: "/users"
-  }
-];
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      selectedTab: tabs
-        .reverse()
-        .find(tab => window.location.pathname.includes(tab.path)).index,
+      selectedTab: 0,
       search: "",
       isFormEmpty: true
     };
   }
 
-  componentDidMount() {
-    console.log("state> ", this.state.selectedTab);
-  }
   handlerChange = value => {
     this.setState({ search: value });
   };
@@ -58,7 +37,7 @@ class App extends Component {
   };
 
   render() {
-    const { selectedTab } = this.state;
+    const { selectedTab, search } = this.state;
     return (
       <Router>
         <Grid
@@ -70,14 +49,10 @@ class App extends Component {
           }}
         >
           <Grid item>
-            <Subscribe to={[SearchContainer]}>
-              {searchContainer => (
-                <CustomAppBar
-                  onSearchChange={searchContainer.handlerChange}
-                  handlerIsFormEmpty={this.handlerIsFormEmpty}
-                />
-              )}
-            </Subscribe>
+            <CustomAppBar
+              onSearchChange={this.handlerChange}
+              handlerIsFormEmpty={this.handlerIsFormEmpty}
+            />
           </Grid>
           <Grid
             item
@@ -88,12 +63,12 @@ class App extends Component {
               padding: "12px"
             }}
           >
-            <Switch>
-              <Route exact path="/" render={() => <PhotoGrid />} />
-              <Route exact path="/users" render={() => <UserGrid />} />
-              <Route exact path="/users/:id" component={UserDetail} />
-              <Route path="*" component={NotFound} />
-            </Switch>
+            <Route
+              exact
+              path="/"
+              render={() => <PhotoGrid filterBy={search} />}
+            />
+            <Route path="/posts" render={this.postCondition} />
           </Grid>
           <Grid item style={{ backgroundColor: "#1B9AAA", color: "white" }}>
             <TabApp selectedTab={selectedTab} onTabChange={this.onTabChange} />
